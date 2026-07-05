@@ -1,0 +1,72 @@
+<!doctype html>
+<html lang="en" data-theme="dark">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+<meta name="color-scheme" content="dark light">
+<title>Lyfe</title>
+<script>
+/* apply saved theme before first paint — day=light, night=dark, auto=by clock */
+(function () {
+  var set = "auto";
+  try {
+    var d = JSON.parse(localStorage.getItem("lyfe.v1"));
+    if (d && d.settings && d.settings.theme) set = d.settings.theme;
+  } catch (e) { /* default auto */ }
+  var mode;
+  if (set === "day" || set === "light") mode = "light";
+  else if (set === "night" || set === "dark") mode = "dark";
+  else { var h = new Date().getHours(); mode = (h >= 7 && h < 18) ? "light" : "dark"; }
+  document.documentElement.setAttribute("data-theme", mode);
+})();
+</script>
+<link rel="icon" href="data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 48 48'%3E%3Crect width='48' height='48' rx='11' fill='%23050505'/%3E%3Cg fill='none' stroke='%23d7ff43' stroke-width='2.4' stroke-linecap='round'%3E%3Ccircle cx='24' cy='24' r='7'/%3E%3Cpath d='M24 8v3.4M24 36.6V40M8 24h3.4M36.6 24H40M12.7 12.7l2.4 2.4M32.9 32.9l2.4 2.4M12.7 35.3l2.4-2.4M32.9 15.1l2.4-2.4'/%3E%3C/g%3E%3C/svg%3E">
+
+<!-- installable Android / PWA -->
+<link rel="manifest" href="manifest.webmanifest">
+<meta name="theme-color" content="#050505">
+<meta name="mobile-web-app-capable" content="yes">
+<meta name="apple-mobile-web-app-capable" content="yes">
+<meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
+<meta name="apple-mobile-web-app-title" content="Lyfe">
+<link rel="apple-touch-icon" href="icon-192.png">
+
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Space+Grotesk:wght@400;500;600;700&family=Space+Mono:wght@400;700&display=swap">
+<link rel="stylesheet" href="styles.css?v=orbit-15">
+</head>
+<body>
+<div id="scroll-progress" aria-hidden="true"></div>
+<div id="stars" aria-hidden="true"></div>
+<div id="bg-glow" aria-hidden="true"></div>
+
+<div id="app">
+  <aside id="sidebar">
+    <nav id="nav" aria-label="Sections"></nav>
+    <div class="side-foot">
+      <button class="linklike" data-action="export">Export</button>
+      <span class="sep">·</span>
+      <button class="linklike" data-action="import">Import</button>
+      <span class="sep">·</span>
+      <button class="linklike" data-action="settings">Settings</button>
+      <input type="file" id="importFile" accept=".json,application/json" hidden>
+    </div>
+  </aside>
+  <main id="main"></main>
+</div>
+
+<div id="modal-root"></div>
+<div id="toast-root"></div>
+<script src="app.js?v=orbit-15"></script>
+<script>
+/* register the service worker so Lyfe installs + runs offline on Android.
+   only over http/https (not file://). */
+if ("serviceWorker" in navigator && location.protocol.startsWith("http")) {
+  window.addEventListener("load", function () {
+    navigator.serviceWorker.register("sw.js").catch(function () { /* offline install optional */ });
+  });
+}
+</script>
+</body>
+</html>
