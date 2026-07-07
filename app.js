@@ -1,5 +1,5 @@
 /* ============================================================
-   Lyfe — your life, lightly kept
+   Lyfe - your life, lightly kept
    Vanilla JavaScript. No dependencies. Data in localStorage.
    Sol, the companion, works offline (built-in parser) and can
    optionally use the Claude API with your own key (Settings).
@@ -42,9 +42,9 @@ const EDU_ORDER = { "in-progress": 0, planned: 1, paused: 2, completed: 3 };
 const GOAL_STATUSES = [["active", "In pursuit"], ["achieved", "Achieved"]];
 
 const MODELS = [
-  ["claude-opus-4-8", "Claude Opus 4.8 — most capable (default)"],
-  ["claude-sonnet-5", "Claude Sonnet 5 — fast + smart"],
-  ["claude-haiku-4-5", "Claude Haiku 4.5 — fastest"],
+  ["claude-opus-4-8", "Claude Opus 4.8 - most capable (default)"],
+  ["claude-sonnet-5", "Claude Sonnet 5 - fast + smart"],
+  ["claude-haiku-4-5", "Claude Haiku 4.5 - fastest"],
 ];
 
 const MONTHS = ["January", "February", "March", "April", "May", "June",
@@ -285,23 +285,43 @@ function solMoodNow() {
 
 const SOL_AVATAR = `<span class="sol-avatar-px" aria-hidden="true">${solSprite(26, "px-idle")}</span>`;
 
-/* small stroke icons — inline svg, themed via currentColor */
+/* small stroke icons - inline svg, themed via currentColor.
+   Two visual languages: ORBIT (dark, sharp editorial) and CRYSTAL
+   (light, rounded y2k bubbles) - the light mode is its own app. */
+const ICONS_ORBIT = {
+  today: '<rect x="4" y="5" width="16" height="15" rx="3"/><path d="M8 3v4M16 3v4M4 10h16"/><path d="M8.7 15l2.2 2.2 4.4-4.6"/>',
+  sol: '<path d="M21 12a8.5 8.5 0 0 1-8.5 8.5c-1.2 0-2.4-.2-3.4-.7L4 21l1.3-4.4A8.5 8.5 0 1 1 21 12z"/><path d="M8.5 10.5h7M8.5 13.5h4.5"/>',
+  tasks: '<rect x="4" y="4" width="16" height="16" rx="4"/><path d="M8.5 12.2l2.4 2.4 4.8-5"/>',
+  projects: '<path d="M12 3l8 4.5-8 4.5-8-4.5L12 3z"/><path d="M4 12.5l8 4.5 8-4.5"/><path d="M4 17l8 4.5 8-4.5" opacity=".4"/>',
+  goals: '<circle cx="12" cy="12" r="8.5"/><circle cx="12" cy="12" r="4.7"/><circle cx="12" cy="12" r="1.2" fill="currentColor" stroke="none"/>',
+  education: '<path d="M3 8.5L12 4l9 4.5-9 4.5L3 8.5z"/><path d="M7 11v5c0 1.4 2.2 2.8 5 2.8s5-1.4 5-2.8v-5"/>',
+  work: '<circle cx="12" cy="12" r="8.5"/><path d="M12 7v5l3.4 2"/>',
+  notes: '<path d="M5 4h11l3 3v13H5V4z"/><path d="M16 4v3h3M8.5 11h7M8.5 14.5h5"/>',
+  docs: '<path d="M6 3.5h9l3.5 3.5v13.5H6V3.5z"/><path d="M15 3.5V7h3.5M9 11h6M9 14h6M9 17h4"/>',
+  photo: '<rect x="3.5" y="5" width="17" height="14" rx="3"/><circle cx="9" cy="10" r="1.6"/><path d="M3.5 16l4.5-4 4 3.5 3-2.5 5.5 4"/>',
+  pin: '<path d="M7 4h10v16l-5-4-5 4V4z"/>',
+  wander: '<circle cx="12" cy="12" r="8.5"/><path d="M15 9l-2.1 4.9L8 16l2.1-4.9L15 9z"/>',
+};
+
+const ICONS_CRYSTAL = {
+  today: '<circle cx="12" cy="12" r="8.6"/><circle cx="12" cy="12" r="3.1"/><path d="M12 1.8v2M12 20.2v2M1.8 12h2M20.2 12h2"/>',
+  sol: '<rect x="3.4" y="4.4" width="17.2" height="12.8" rx="6.4"/><path d="M8.6 17.2L7.4 21l4.6-3.8"/><circle cx="9.3" cy="10.8" r="1" fill="currentColor" stroke="none"/><circle cx="14.7" cy="10.8" r="1" fill="currentColor" stroke="none"/>',
+  tasks: '<circle cx="12" cy="12" r="8.6"/><path d="M8.2 12.4l2.6 2.6 5-5.6"/>',
+  projects: '<circle cx="12" cy="12" r="8.6"/><circle cx="12" cy="3.4" r="1.7" fill="currentColor" stroke="none"/><circle cx="4.6" cy="16.4" r="1.7" fill="currentColor" stroke="none"/><circle cx="19.4" cy="16.4" r="1.7" fill="currentColor" stroke="none"/>',
+  goals: '<path d="M6.5 21V4.2"/><path d="M6.5 5.2c2.6-1.7 5.2-1.7 7.7-.2s5 1.6 6.3.8v7.6c-1.3.8-3.8.7-6.3-.8s-5.1-1.5-7.7.2"/>',
+  education: '<path d="M12 6.3C10 4.7 7.2 4 4 4.4v13.2c3.2-.4 6 .3 8 1.9 2-1.6 4.8-2.3 8-1.9V4.4C16.8 4 14 4.7 12 6.3z"/><path d="M12 6.3v13.2"/>',
+  work: '<rect x="3.8" y="3.8" width="16.4" height="16.4" rx="5.2"/><path d="M13.1 6.8L9.6 12h4.4l-3.5 5.2"/>',
+  notes: '<path d="M4.4 6.6A2.6 2.6 0 0 1 7 4h10a2.6 2.6 0 0 1 2.6 2.6v6.8L13.4 20H7a2.6 2.6 0 0 1-2.6-2.6V6.6z"/><path d="M13.4 20v-4a2.6 2.6 0 0 1 2.6-2.6h3.6"/>',
+  docs: '<rect x="4.8" y="3.4" width="14.4" height="17.2" rx="3.2"/><path d="M8.6 8.6h6.8M8.6 12h6.8M8.6 15.4h4.2"/>',
+  photo: '<rect x="3.4" y="6.4" width="17.2" height="13.2" rx="3.6"/><path d="M9 6.4l1.4-2.4h3.2L15 6.4"/><circle cx="12" cy="12.8" r="3.1"/>',
+  pin: '<path d="M9.2 3.4h5.6l-.9 5.8 3.3 3.4H6.8l3.3-3.4-.9-5.8z"/><path d="M12 12.6V21"/>',
+  wander: '<path d="M20.6 3.4L3.4 10.7l6.7 2.6 2.6 6.7 7.9-16.6z"/><path d="M10.1 13.3l4.3-4.3"/>',
+};
+
 function icon(name, cls) {
-  const paths = {
-    today: '<rect x="4" y="5" width="16" height="15" rx="3"/><path d="M8 3v4M16 3v4M4 10h16"/><path d="M8.7 15l2.2 2.2 4.4-4.6"/>',
-    sol: '<path d="M21 12a8.5 8.5 0 0 1-8.5 8.5c-1.2 0-2.4-.2-3.4-.7L4 21l1.3-4.4A8.5 8.5 0 1 1 21 12z"/><path d="M8.5 10.5h7M8.5 13.5h4.5"/>',
-    tasks: '<rect x="4" y="4" width="16" height="16" rx="4"/><path d="M8.5 12.2l2.4 2.4 4.8-5"/>',
-    projects: '<path d="M12 3l8 4.5-8 4.5-8-4.5L12 3z"/><path d="M4 12.5l8 4.5 8-4.5"/><path d="M4 17l8 4.5 8-4.5" opacity=".4"/>',
-    goals: '<circle cx="12" cy="12" r="8.5"/><circle cx="12" cy="12" r="4.7"/><circle cx="12" cy="12" r="1.2" fill="currentColor" stroke="none"/>',
-    education: '<path d="M3 8.5L12 4l9 4.5-9 4.5L3 8.5z"/><path d="M7 11v5c0 1.4 2.2 2.8 5 2.8s5-1.4 5-2.8v-5"/>',
-    work: '<circle cx="12" cy="12" r="8.5"/><path d="M12 7v5l3.4 2"/>',
-    notes: '<path d="M5 4h11l3 3v13H5V4z"/><path d="M16 4v3h3M8.5 11h7M8.5 14.5h5"/>',
-    docs: '<path d="M6 3.5h9l3.5 3.5v13.5H6V3.5z"/><path d="M15 3.5V7h3.5M9 11h6M9 14h6M9 17h4"/>',
-    photo: '<rect x="3.5" y="5" width="17" height="14" rx="3"/><circle cx="9" cy="10" r="1.6"/><path d="M3.5 16l4.5-4 4 3.5 3-2.5 5.5 4"/>',
-    pin: '<path d="M7 4h10v16l-5-4-5 4V4z"/>',
-    wander: '<circle cx="12" cy="12" r="8.5"/><path d="M15 9l-2.1 4.9L8 16l2.1-4.9L15 9z"/>',
-  };
-  return `<svg class="ic ${cls || ""}" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.6" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true">${paths[name] || paths.today}</svg>`;
+  const crystal = document.documentElement.getAttribute("data-theme") === "light";
+  const set = crystal ? ICONS_CRYSTAL : ICONS_ORBIT;
+  return `<svg class="ic ${cls || ""}" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="${crystal ? 1.8 : 1.6}" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true">${set[name] || set.today}</svg>`;
 }
 
 /* ---------------- helpers ---------------- */
@@ -374,10 +394,14 @@ function pick(arr) { return arr[Math.floor(Math.random() * arr.length)]; }
 
 function defaultData() {
   return {
+    // rev/savedAt guard multi-tab writes. rev must stay the FIRST key so
+    // revOfRaw() can read it off the raw string without a full JSON.parse.
+    rev: 0,
+    savedAt: 0,
     version: 1,
     settings: {
       name: "Aman",
-      theme: "auto",                 // auto | day | night
+      theme: "auto",                 // auto | light | dark
       provider: "ollama",            // ollama | claude | offline
       ollamaUrl: "http://localhost:11434",
       ollamaModel: "qwen3:8b",
@@ -405,19 +429,19 @@ function firstRunData() {
     id: uid(),
     title: "Welcome to Lyfe",
     body:
-`Lyfe keeps everything in one calm place — and Sol keeps you company.
+`Lyfe keeps everything in one calm place - and Sol keeps you company.
 
 THE SHORT TOUR
 
-Today — what needs you now, nothing more.
-Sol — your companion. Just talk: "remind me to email prof tomorrow", "log 2h on research", "note: read Maass 1997", or plain "hi". Sol files things for you.
-Tasks · Projects · Goals · Education · Work Log — the usual suspects, kept simple.
-Notes — quick thoughts. Docs — longer writing.
+Today - what needs you now, nothing more.
+Sol - your companion. Just talk: "remind me to email prof tomorrow", "log 2h on research", "note: read Maass 1997", or plain "hi". Sol files things for you.
+Tasks · Projects · Goals · Education · Work Log - the usual suspects, kept simple.
+Notes - quick thoughts. Docs - longer writing.
 
 GOOD TO KNOW
 
 Everything lives in this browser only (localStorage). Export a backup from the sidebar now and then.
-Sol works fully offline. Add an Anthropic API key in Settings and Sol becomes a real AI who understands anything — including things you paste from other AI chats.`,
+Sol works fully offline. Add an Anthropic API key in Settings and Sol becomes a real AI who understands anything - including things you paste from other AI chats.`,
     pinned: true,
     createdAt: now,
     updatedAt: now,
@@ -444,12 +468,15 @@ function normalize(raw) {
   }
   // heal a bad model id that shipped briefly (qwen3.5:9b is not a real Ollama tag)
   if (base.settings.ollamaModel === "qwen3.5:9b") base.settings.ollamaModel = "qwen3:8b";
-  // migrate the old two-value theme to the new model — legacy installs never
-  // chose day/night deliberately, so they get the new auto-by-clock behavior
-  if (base.settings.theme === "dark" || base.settings.theme === "light") base.settings.theme = "auto";
+  // theme names moved from day/night to light/dark - carry old choices over
+  if (base.settings.theme === "day") base.settings.theme = "light";
+  if (base.settings.theme === "night") base.settings.theme = "dark";
   if (raw.game && typeof raw.game === "object") {
     base.game = Object.assign(base.game, raw.game);
   }
+  // pre-rev payloads (and hand-rolled backups) count as revision 0
+  if (typeof raw.rev === "number" && isFinite(raw.rev) && raw.rev >= 0) base.rev = Math.floor(raw.rev);
+  if (typeof raw.savedAt === "number" && isFinite(raw.savedAt)) base.savedAt = raw.savedAt;
   return base;
 }
 
@@ -463,12 +490,37 @@ function loadData() {
   }
 }
 
-function save() {
+/* multi-tab safety: every payload carries a revision counter. A tab may only
+   write if it holds the latest revision - otherwise a stale tab (say, one that
+   sat open for hours and then fired its beforeunload save) would overwrite
+   newer data with its old in-memory snapshot. External writes are absorbed
+   live by the storage listener near the bottom of this file. */
+function revOfRaw(raw) {
+  if (raw == null) return -1;              // nothing stored yet
+  const m = /^\{"rev":(\d+)/.exec(raw);    // rev is always the first key
+  return m ? Number(m[1]) : 0;             // no match = legacy pre-rev payload
+}
+
+function storedRev() {
+  try { return revOfRaw(localStorage.getItem(STORAGE_KEY)); }
+  catch (e) { return -1; }
+}
+
+function save(force) {
   try {
+    const stored = storedRev();
+    if (!force && stored > (state.data.rev || 0)) {
+      // another tab wrote a newer revision we haven't absorbed yet; the
+      // queued storage/visibility events will fold it in - don't clobber it
+      return false;
+    }
+    state.data.rev = Math.max(state.data.rev || 0, stored) + 1;
+    state.data.savedAt = Date.now();
     localStorage.setItem(STORAGE_KEY, JSON.stringify(state.data));
+    padDirty = false;
     return true;
   } catch (e) {
-    toast("Could not save — storage may be full");
+    toast("Could not save - storage may be full");
     return false;
   }
 }
@@ -489,7 +541,8 @@ const state = {
   factIndex: Math.floor(Math.random() * FACTS.length),
 };
 
-/* day = light, night = dark, auto = by the clock */
+/* light = CRYSTAL, dark = ORBIT, auto = by the clock.
+   ("day"/"night" still resolve for any backup written before the rename.) */
 function autoThemeMode() {
   const h = new Date().getHours();
   return (h >= 7 && h < 18) ? "light" : "dark";
@@ -505,7 +558,7 @@ function applyTheme() {
   document.documentElement.setAttribute("data-theme", mode);
   // keep the browser chrome (address bar / PWA titlebar) in step with the theme
   const meta = document.querySelector('meta[name="theme-color"]');
-  if (meta) meta.setAttribute("content", mode === "light" ? "#efefe9" : "#050505");
+  if (meta) meta.setAttribute("content", mode === "light" ? "#e9f1fb" : "#050505");
 }
 
 /* ---------------- generic ui ---------------- */
@@ -565,7 +618,7 @@ const SFX = (() => {
     try { fn(ctx()); } catch (e) { /* audio is a bonus, never a blocker */ }
   }
 
-  /* ascending triad — the satisfying task complete chime */
+  /* ascending triad - the satisfying task complete chime */
   function finish() {
     play(c => {
       const g = c.createGain(); g.connect(c.destination);
@@ -689,7 +742,7 @@ const SFX = (() => {
     });
   }
 
-  /* alarmy-style aggressive alarm — alternating tones, looping until stopped */
+  /* alarmy-style aggressive alarm - alternating tones, looping until stopped */
   let _alarmOscs = [];
   let _alarmGain = null;
   let _alarmTimer = null;
@@ -834,7 +887,7 @@ function startAlarm(task) {
     <div class="alarm-box">
       <div class="alarm-flag">⚑ IMPORTANT · NOW</div>
       <h2>${esc(task.title)}</h2>
-      <p>${esc(fmtShort(task.due))}${task.dueTime ? " · " + esc(task.dueTime) : ""} — this won't stop until you answer</p>
+      <p>${esc(fmtShort(task.due))}${task.dueTime ? " · " + esc(task.dueTime) : ""} - this won't stop until you answer</p>
       <div class="alarm-actions">
         <button class="btn btn-primary" data-action="alarm-ack" data-id="${esc(task.id)}">I'M ON IT ✓</button>
         <button class="btn" data-action="alarm-done" data-id="${esc(task.id)}">ALREADY DONE</button>
@@ -906,7 +959,7 @@ function taskRow(t, opts) {
   return `<li class="task ${done ? "done" : ""} ${!done && t.important ? "important" : ""}">
     <button class="check" data-action="toggle-task" data-id="${esc(t.id)}"
       title="${done ? "Mark as not done" : "Mark as done"}" aria-label="Toggle task">${done ? "✓" : ""}</button>
-    <div class="task-title">${!done && t.important ? `<span class="imp-flag" title="Important — will alarm">⚑</span>` : ""}${esc(t.title)}${!done && t.priority === "High" ? `<span class="prio-flag" title="High priority">!</span>` : ""}</div>
+    <div class="task-title">${!done && t.important ? `<span class="imp-flag" title="Important - will alarm">⚑</span>` : ""}${esc(t.title)}${!done && t.priority === "High" ? `<span class="prio-flag" title="High priority">!</span>` : ""}</div>
     ${side}
     <span class="row-actions">
       ${!done && t.due && t.due < todayStr() ? `<button class="icon-btn" data-action="snooze-task" data-id="${esc(t.id)}" title="Push to tomorrow">↷</button>` : ""}
@@ -1008,7 +1061,119 @@ function viewToday() {
     <div class="daily-ring-meta"><span class="eyebrow">TODAY</span><b>${doneN} done</b><p>${streak > 0 ? "▲ " + streak + " day streak" : "start a streak today"}</p></div>
   </div>`;
 
-  // Home is intentionally cinematic at first glance, then opens into useful detail on scroll.
+  // the two identities are two different buildings on the same data.
+  // CRYSTAL (light): glass showroom - 3D disc hero, bento deck, holo endcap.
+  if (resolvedTheme() === "light") {
+    const learning = d.education.filter(x => x.status === "in-progress").length;
+    const sleepy = solMoodNow() === "sleepy";
+    return `<div class="cx-stage">
+    <section class="cx-hero" data-reveal>
+      <div class="cx-hero-copy">
+        <div class="cx-kicker home-index">LYFE ::CRYSTAL • ${esc(fmtLongISO(t))}</div>
+        <h1 class="cx-title">Good ${part}${name ? ",<br>" + esc(name) : "<br>friend"}<span class="blink-dot">.</span></h1>
+        <p class="cx-deck">${open.length
+          ? `<b>${open.length} open loop${open.length === 1 ? "" : "s"}</b> in orbit - everything else is handled.`
+          : `Nothing waiting on you. <b>Protect that feeling.</b>`}</p>
+        <div class="cx-cta">
+          <button class="btn btn-primary cx-btn-big" data-action="new-task">+ capture</button>
+          <button class="btn cx-btn-big" data-action="nav" data-view="sol">${icon("sol")} talk to Sol</button>
+        </div>
+      </div>
+
+      <div class="cx-hero-disc" aria-hidden="true">
+        <div class="cx-float">
+          <i class="cx-petal p1"></i><i class="cx-petal p2"></i><i class="cx-petal p3"></i>
+          <div class="cx-core">
+            <i class="cx-core-ring rb"></i>
+            <i class="cx-core-orb"></i>
+            <i class="cx-core-ring rf"></i>
+            <i class="cx-core-orbiter"><i></i></i>
+            <span class="cx-core-badge">::2K</span>
+            <span class="cx-core-label">personal system · crystal</span>
+          </div>
+          <span class="cx-glint g1">✦</span><span class="cx-glint g2">✧</span><span class="cx-glint g3">✦</span>
+        </div>
+      </div>
+
+      <div class="cx-stats">
+        <button class="cx-stat" data-action="nav" data-view="tasks"><b>${overdue.length + dueToday.length}</b><span>due now</span></button>
+        <button class="cx-stat" data-action="nav" data-view="projects"><b>${activeProjects.length}</b><span>projects live</span></button>
+        <button class="cx-stat" data-action="nav" data-view="work"><b>${fmtHours(wh)}h</b><span>deep work</span></button>
+        <button class="cx-stat" data-action="nav" data-view="education"><b>${learning}</b><span>learning</span></button>
+        <button class="cx-stat cx-stat-sol" data-action="nav" data-view="sol">${solSprite(30, "px-idle", solMoodNow())}<span>${sleepy ? "sol · up late" : "sol · online"}</span></button>
+      </div>
+    </section>
+
+    <div class="ticker" aria-hidden="true">
+      <div>WELCOME.. ::2K • CAPTURE IT • MOVE IT • LEARN IT • REMEMBER IT • LIVE IT • WELCOME.. ::2K • CAPTURE IT • MOVE IT • LEARN IT • REMEMBER IT • LIVE IT • </div>
+    </div>
+
+    <section class="cx-bento">
+      <section class="panel tilt cx-tile cx-queue">
+        <div class="panel-head">
+          <div><span class="eyebrow">TODAY'S QUEUE</span><h2>Do the next thing.</h2></div>
+          <span class="queue-count">${overdue.length + dueToday.length} live</span>
+        </div>
+        <div class="panel-body">
+          <form class="quick-add command-add" data-form="quick-task-today">
+            <span>+</span>
+            <input type="text" id="qa-title" name="title" maxlength="200" placeholder="Type it before it disappears…" autocomplete="off">
+            <button class="btn btn-primary btn-sm" type="submit">LOCK</button>
+          </form>
+          ${dayList}
+        </div>
+      </section>
+
+      <section class="panel tilt cx-tile cx-level">
+        <span class="eyebrow">${esc(li.name.toUpperCase())} · ${li.xp} XP</span>
+        <div class="cx-level-row">
+          <div class="level-orb" style="--score:${score * 3.6}deg"><span>LVL</span><b>${String(level).padStart(2, "0")}</b></div>
+          <div class="cx-level-copy"><b>${finished}</b><p>things finished · ${li.need - li.into} XP to level ${level + 1}</p></div>
+        </div>
+      </section>
+
+      <section class="panel tilt cx-tile cx-ring">${dailyRing}</section>
+
+      <section class="panel tilt cx-tile heat-card cx-heat">
+        <span class="eyebrow">LAST 30 DAYS</span>
+        ${heat30()}
+        <p class="heat-cap">brighter = more finished · dot = you showed up</p>
+      </section>
+
+      <section class="panel tilt cx-tile cx-projects">
+        <div class="panel-head"><h2>Projects</h2><button class="linklike" data-action="nav" data-view="projects">OPEN ALL ↗</button></div>
+        <div class="panel-body">${projList}</div>
+      </section>
+
+      <section class="panel tilt cx-tile cx-notes">
+        <div class="panel-head"><h2>Memory bank</h2><button class="linklike" data-action="nav" data-view="notes">OPEN NOTES ↗</button></div>
+        <div class="panel-body">${noteList}</div>
+      </section>
+
+      <section class="panel tilt cx-tile mini-sol-card cx-solcard">
+        <span class="eyebrow">SOL SAYS</span>
+        <h2>${overdue.length ? "one overdue thing. no drama, just pick it up." : "your slate is clear. protect that feeling."}</h2>
+        <button class="btn" data-action="nav" data-view="sol">reply to Sol</button>
+      </section>
+    </section>
+
+    <section class="panel tilt calm-card cx-moment">
+      <img class="calm-img" alt="today's photograph" loading="lazy"
+        src="https://picsum.photos/seed/lyfe-${t}/1200/400"
+        onerror="this.closest('.calm-card').style.display='none'">
+      <div class="calm-cap">a moment of calm · new each day</div>
+    </section>
+
+    <section class="cx-endcap" data-reveal>
+      <i class="cx-endcap-disc" aria-hidden="true"></i>
+      <span class="cx-endcap-kicker">YOU ARE NOT BEHIND.</span>
+      <h2>You are here.<br>That is enough to begin.</h2>
+      <button class="btn btn-primary" data-action="nav" data-view="wander">take a detour ${icon("wander")}</button>
+    </section>
+  </div>`;
+  }
+
+  // ORBIT (dark): the cinematic control room, unchanged.
   return `<div class="home-stage">
     <section class="home-intro">
       <div class="home-index">LYFE / ${String(new Date().getMonth() + 1).padStart(2, "0")}.${String(new Date().getDate()).padStart(2, "0")}</div>
@@ -1123,15 +1288,21 @@ function viewWander() {
   const place = PLACES[state.wanderIndex % PLACES.length];
   const fact = FACTS[state.factIndex % FACTS.length];
   const [name, country, blurb, wikiTitle] = place;
+  const crystal = resolvedTheme() === "light";
   return `<div class="wander-page">
     ${pageHead("Wander",
       `<button class="btn" data-action="save-wander">keep this</button>
        <button class="btn btn-primary" data-action="new-wander">somewhere else ↗</button>`,
       "a five minute window")}
     <section class="wander-hero tilt" data-wiki="${esc(wikiTitle)}">
-      <img id="wander-photo" src="assets/lyfe-cosmos.png" alt="${esc(name)}, ${esc(country)}">
+      <div class="wander-loading" aria-hidden="true">
+        <i></i>
+        <span class="wl-tuning">${crystal ? "TUNING SIGNAL.." : "ACQUIRING TRANSMISSION…"}</span>
+        <span class="wl-lost">${crystal ? "NO SIGNAL - IMAGINE IT.." : "SIGNAL LOST - IMAGINE IT"}</span>
+      </div>
+      <img id="wander-photo" alt="${esc(name)}, ${esc(country)}">
       <div class="wander-scan" aria-hidden="true"></div>
-      <div class="wander-meta"><span>PLACE ${String(state.wanderIndex + 1).padStart(3, "0")} / ${PLACES.length}</span><span>RANDOM TRANSMISSION</span></div>
+      <div class="wander-meta"><span>${crystal ? "DISC" : "PLACE"} ${String(state.wanderIndex + 1).padStart(3, "0")} / ${PLACES.length}</span><span>${crystal ? "COLOR COLLECTION • MD 80" : "RANDOM TRANSMISSION"}</span></div>
       <div class="wander-copy">
         <span>${esc(country)}</span>
         <h1>${esc(name)}</h1>
@@ -1144,10 +1315,12 @@ function viewWander() {
       <p>${esc(fact)}</p>
       <button class="linklike" data-action="new-fact">another fact ↻</button>
     </section>
-    <div class="wander-footer">100+ places. zero itinerary. just enough world to wake your attention back up.</div>
+    <div class="wander-footer">100+ places. zero itinerary. just enough world to wake your attention back up. <span class="wander-tip">tip: ← → for another place</span></div>
   </div>`;
 }
 
+/* the photo arrives behind a clean tuning screen and fades in -
+   no placeholder art, no flash of the previous place */
 async function loadWanderPhoto() {
   const img = document.getElementById("wander-photo");
   const hero = document.querySelector(".wander-hero");
@@ -1155,11 +1328,16 @@ async function loadWanderPhoto() {
   try {
     const title = hero.dataset.wiki;
     const res = await fetch("https://en.wikipedia.org/api/rest_v1/page/summary/" + encodeURIComponent(title));
-    if (!res.ok) return;
+    if (!res.ok) throw new Error("no summary");
     const data = await res.json();
     const src = data.originalimage && data.originalimage.source || data.thumbnail && data.thumbnail.source;
-    if (src && img.isConnected) img.src = src;
-  } catch (e) { /* generated fallback remains visible */ }
+    if (!src) throw new Error("no image");
+    img.onload = () => { if (hero.isConnected) hero.classList.add("img-ready"); };
+    img.onerror = () => { if (hero.isConnected) hero.classList.add("img-fallback"); };
+    if (img.isConnected) img.src = src;
+  } catch (e) {
+    if (hero.isConnected) hero.classList.add("img-fallback");
+  }
 }
 
 /* ---------------- view: tasks ---------------- */
@@ -1383,14 +1561,14 @@ function viewWork() {
 
   const wk = weekLog();
   const wkHours = weekHours();
-  const weekLine = `This week — ${wk.length} ${wk.length === 1 ? "entry" : "entries"}${wkHours ? " · " + fmtHours(wkHours) + "h" : ""}`;
+  const weekLine = `This week - ${wk.length} ${wk.length === 1 ? "entry" : "entries"}${wkHours ? " · " + fmtHours(wkHours) + "h" : ""}`;
 
   const form = `<section class="panel log-form tilt">
     <div class="panel-head"><h2>What moved forward?</h2>
       <div class="wk-side">${weekChart()}<span class="week-line">${esc(weekLine)}</span></div></div>
     <div class="panel-body">
       <form data-form="log">
-        <textarea name="text" placeholder="Write it down — future you will thank you" required></textarea>
+        <textarea name="text" placeholder="Write it down - future you will thank you" required></textarea>
         <div class="log-form-row">
           <input type="date" name="date" value="${todayStr()}" required title="Date">
           <input type="number" name="hours" min="0" max="24" step="0.5" placeholder="hours" title="Hours (optional)">
@@ -1491,6 +1669,8 @@ function refreshPadList(kind) {
 }
 
 let padSaveTimer = null;
+let padDirty = false;     // keystrokes land in state instantly but the save is
+let padDirtyKind = null;  // debounced - this marks the not-yet-persisted window
 function onPadInput(kind) {
   const cfg = PADS[kind];
   const n = state.data[cfg.key].find(x => x.id === state[cfg.sel]);
@@ -1500,6 +1680,8 @@ function onPadInput(kind) {
   if (t) n.title = t.value;
   if (b) n.body = b.value;
   n.updatedAt = Date.now();
+  padDirty = true;
+  padDirtyKind = kind;
   clearTimeout(padSaveTimer);
   padSaveTimer = setTimeout(save, 350);
   const row = document.querySelector(`[data-pad-row="${CSS.escape(n.id)}"]`);
@@ -1547,11 +1729,11 @@ async function addPhotosToPad(kind, fileList) {
       if (!save()) {
         item.images.pop();
         save();
-        toast("Not enough room for that photo — export a backup and clear space");
+        toast("Not enough room for that photo - export a backup and clear space");
         break;
       }
       added++;
-    } catch (e) { /* unreadable file — skip */ }
+    } catch (e) { /* unreadable file - skip */ }
   }
   if (added) {
     item.updatedAt = Date.now();
@@ -1609,7 +1791,7 @@ function viewSol() {
        <button class="linklike" data-action="sol-clear">clear chat</button>`,
       "your companion")
     + `<div class="sol-wrap">
-        <div id="chat-log">${log || emptyState("say hi — sol answers like a friend", "sol")}</div>
+        <div id="chat-log">${log || emptyState("say hi - sol answers like a friend", "sol")}</div>
         <div class="sol-chips">${SOL_CHIPS.map(([c, send]) =>
           `<button class="chip" data-action="sol-chip" data-send="${send ? 1 : 0}" data-t="${esc(c)}">${esc(c.trim())}</button>`).join("")}
         </div>
@@ -1779,11 +1961,11 @@ function statusBubbles() {
   else {
     let line = `you've got ${c.open.length} open ${c.open.length === 1 ? "task" : "tasks"}`;
     if (c.dueToday.length) line += `, ${c.dueToday.length} due today`;
-    if (c.overdue.length) line += ` — and ${c.overdue.length} overdue 👀`;
+    if (c.overdue.length) line += ` - and ${c.overdue.length} overdue 👀`;
     b.push(line);
   }
   if (c.hours) b.push(`${fmtHours(c.hours)}h of work logged this week. keep it moving`);
-  else b.push("no work logged this week yet — even one line counts");
+  else b.push("no work logged this week yet - even one line counts");
   return b;
 }
 
@@ -1841,7 +2023,7 @@ function stripCourtesy(s) {
 const JOKES = [
   "a neuron walks into a bar. doesn't fire. tough crowd",
   "i only know sundial jokes, and honestly they take all day",
-  "my sleep schedule is perfect. i literally rise at dawn — it's the job",
+  "my sleep schedule is perfect. i literally rise at dawn - it's the job",
   "i'd tell you a localStorage joke but you'd just forget to persist it",
 ];
 
@@ -1849,7 +2031,7 @@ const EMPATHY_1 = ["that sounds heavy. i'm here", "ugh, those days are the worst
 const EMPATHY_2 = [
   "want to dump it on me? venting counts as productivity today",
   "be gentle with yourself. one small thing, then rest",
-  "the list can wait — you matter more than it does",
+  "the list can wait - you matter more than it does",
 ];
 
 function dueWord(due) {
@@ -1871,7 +2053,7 @@ function solLocal(raw) {
     const c = contextBits();
     const hello = pick([`hey${name ? " " + name.toLowerCase() : ""} 👋`, "heyy", "hello hello", "hey, good to see you"]);
     const follow = c.dueToday.length || c.overdue.length
-      ? pick([`quick heads up — ${c.dueToday.length + c.overdue.length} thing${c.dueToday.length + c.overdue.length === 1 ? "" : "s"} on today's plate`, "want a rundown of today? just ask \"what's due\""])
+      ? pick([`quick heads up - ${c.dueToday.length + c.overdue.length} thing${c.dueToday.length + c.overdue.length === 1 ? "" : "s"} on today's plate`, "want a rundown of today? just ask \"what's due\""])
       : pick(["nothing pressing today. how are you?", "clear day ahead. what's on your mind?"]);
     return { bubbles: [hello, follow], actions: [] };
   }
@@ -1904,7 +2086,7 @@ function solLocal(raw) {
     const { title, due } = stripDateWords(m[1]);
     if (!title) return { bubbles: ["remind you to… what? 😄"], actions: [] };
     return {
-      bubbles: [pick(["on it ✓", "noted ✓", "added ✓"]) + ` — "${title}"${dueWord(due)}`],
+      bubbles: [pick(["on it ✓", "noted ✓", "added ✓"]) + ` - "${title}"${dueWord(due)}`],
       actions: [{ type: "add_task", title, due }],
     };
   }
@@ -1916,7 +2098,7 @@ function solLocal(raw) {
       (x.title.toLowerCase().includes(q) || q.includes(x.title.toLowerCase())));
     if (task) {
       return {
-        bubbles: [pick(["nice. ticked off ✓", "done and dusted ✓", "crossed out ✓"]) + ` — "${task.title}"`],
+        bubbles: [pick(["nice. ticked off ✓", "done and dusted ✓", "crossed out ✓"]) + ` - "${task.title}"`],
         actions: [{ type: "complete_task", title: task.title }],
       };
     }
@@ -1932,7 +2114,7 @@ function solLocal(raw) {
   }
 
   if ((m = t.match(/^(?:doc|new doc|start (?:a )?doc(?: called| on| about)?)\s*:?\s+(.+)/i))) {
-    return { bubbles: [`started a doc called "${m[1].trim()}" — it's in Docs waiting for you ✓`], actions: [{ type: "add_doc", title: m[1].trim(), body: "" }] };
+    return { bubbles: [`started a doc called "${m[1].trim()}" - it's in Docs waiting for you ✓`], actions: [{ type: "add_doc", title: m[1].trim(), body: "" }] };
   }
 
   if ((m = t.match(/^(?:goal|new goal|my goal is(?: to)?)\s*:?\s+(.+)/i))) {
@@ -1958,13 +2140,13 @@ function solLocal(raw) {
       .replace(/\s+(?:on|for|of)\s*$/i, "").trim();
     if (!text) text = "work session";
     return {
-      bubbles: [pick(["logged ✓", "in the books ✓", "logged it ✓"]) + (hours ? ` — ${fmtHours(hours)}h on "${text}"` : ` — "${text}"`)],
+      bubbles: [pick(["logged ✓", "in the books ✓", "logged it ✓"]) + (hours ? ` - ${fmtHours(hours)}h on "${text}"` : ` - "${text}"`)],
       actions: [{ type: "log_work", text, hours }],
     };
   }
 
   if ((m = t.match(/^(?:i'?m )?(?:learning|studying|course)\s*:?\s+(.+)/i))) {
-    return { bubbles: [`added "${m[1].trim()}" to education ✓ — go get it`], actions: [{ type: "add_education", title: m[1].trim() }] };
+    return { bubbles: [`added "${m[1].trim()}" to education ✓ - go get it`], actions: [{ type: "add_education", title: m[1].trim() }] };
   }
 
   /* -- questions about the ledger (contains-matching, so after commands) -- */
@@ -1988,13 +2170,13 @@ function solLocal(raw) {
   }
 
   if (/^(how are you|how('?s| is) it going|what'?s up|wyd)\b/.test(low)) {
-    return { bubbles: [pick(["living my best life in your sidebar ☀️", "all good here. more importantly — how are *you*?", "quiet and warm in here. what's going on with you?"])], actions: [] };
+    return { bubbles: [pick(["living my best life in your sidebar ☀️", "all good here. more importantly - how are *you*?", "quiet and warm in here. what's going on with you?"])], actions: [] };
   }
 
   return {
     bubbles: [
       pick(["hmm, i didn't fully catch that 😅", "not sure i got that one"]),
-      "try \"remind me to …\", \"log 2h on …\", \"note: …\", or \"done …\" — or add an api key in settings and i'll understand anything",
+      "try \"remind me to …\", \"log 2h on …\", \"note: …\", or \"done …\" - or add an api key in settings and i'll understand anything",
     ],
     actions: [],
   };
@@ -2022,7 +2204,7 @@ Action types:
 - add_education {title, kind? "Course"|"Degree"|"Certification"|"Language"|"Book"|"Paper"|"Skill", provider?}
 - add_project {name, area?, description?}
 
-Rules: only include the block when there is genuinely something to save. Mention casually in your text that you've saved it (the app applies the block automatically — the user never sees the json). If the user pastes a conversation or output from another AI (ChatGPT, Claude, etc.), pull out anything worth keeping — tasks, notes, plans — into actions and confirm what you kept. If the user is just chatting or venting, just be a good friend; no actions needed.
+Rules: only include the block when there is genuinely something to save. Mention casually in your text that you've saved it (the app applies the block automatically - the user never sees the json). If the user pastes a conversation or output from another AI (ChatGPT, Claude, etc.), pull out anything worth keeping - tasks, notes, plans - into actions and confirm what you kept. If the user is just chatting or venting, just be a good friend; no actions needed.
 
 Example of a perfect reply:
 User: "remind me to call the bank tomorrow, also im so tired lately"
@@ -2062,7 +2244,7 @@ function parseSolOutput(text) {
       const a = JSON.parse(body);
       if (Array.isArray(a)) actions.push(...a);
       else if (a && typeof a === "object") actions.push(a);
-    } catch (e) { /* unparseable block — still hide it */ }
+    } catch (e) { /* unparseable block - still hide it */ }
     return "";
   }).trim();
   const bubbles = text.split(/\n{2,}/).map(s => s.trim()).filter(Boolean).slice(0, 4);
@@ -2108,7 +2290,7 @@ async function askOllama() {
   if (!history.length) throw new Error("no user message");
 
   const base = (s.ollamaUrl || "http://localhost:11434").replace(/\/+$/, "");
-  // lyfe-sol is our tuned build (persona baked in via sol/Modelfile) —
+  // lyfe-sol is our tuned build (persona baked in via sol/Modelfile) -
   // it only needs the live snapshot, not the whole persona each turn
   const model = s.ollamaModel || "qwen3:8b";
   const baked = /lyfe-sol/i.test(model);
@@ -2184,7 +2366,7 @@ const NUDGES = [
   () => {
     const c = contextBits();
     if (!c.overdue.length) return null;
-    return [`psst — "${c.overdue[0].title}" is still overdue`, "want to knock it out or push the date?"];
+    return [`psst - "${c.overdue[0].title}" is still overdue`, "want to knock it out or push the date?"];
   },
   () => {
     const c = contextBits();
@@ -2197,7 +2379,7 @@ const NUDGES = [
   },
   () => ["random check-in 👋 how's it going over there?"],
   () => ["stretch break. water. eyes off the screen for a minute ☀️", "i'll be here"],
-  () => ["whatever you're doing right now — one small win before you switch tasks. that's the whole trick"],
+  () => ["whatever you're doing right now - one small win before you switch tasks. that's the whole trick"],
 ];
 
 let nudgeTimer = null;
@@ -2218,7 +2400,7 @@ async function fireNudge() {
 }
 
 async function maybeGreet() {
-  // say hello whenever you open the app after a real break —
+  // say hello whenever you open the app after a real break -
   // if the conversation moved in the last 45 min, don't re-greet
   const last = state.data.chat[state.data.chat.length - 1];
   if (last && Date.now() - last.ts < 45 * 60 * 1000) return;
@@ -2233,9 +2415,9 @@ async function maybeGreet() {
     hour < 23 ? pick([`evening${name ? " " + name : ""} 🌙`, `hey${name ? " " + name : ""}, welcome back`]) :
     `late one${name ? ", " + name : ""}?`;
   const bubbles = [hello];
-  if (c.overdue.length) bubbles.push(`heads up — ${c.overdue.length} overdue task${c.overdue.length === 1 ? "" : "s"} waiting on you`);
+  if (c.overdue.length) bubbles.push(`heads up - ${c.overdue.length} overdue task${c.overdue.length === 1 ? "" : "s"} waiting on you`);
   else if (c.dueToday.length) bubbles.push(`${c.dueToday.length} thing${c.dueToday.length === 1 ? "" : "s"} on today's list. very doable`);
-  else bubbles.push(pick(["clean slate today. what shall we make of it?", "nothing scheduled — a rare gift. use it well", "all quiet. how are you doing?"]));
+  else bubbles.push(pick(["clean slate today. what shall we make of it?", "nothing scheduled - a rare gift. use it well", "all quiet. how are you doing?"]));
   await solSay(bubbles);
 }
 
@@ -2275,10 +2457,10 @@ function taskModal(task) {
        <div class="fld-row">
          ${fld("Due date", `<input type="date" name="due" value="${esc(t.due || "")}">`)}
          ${fld("Time", `<input type="time" name="dueTime" value="${esc(t.dueTime || "")}">`)}
-         ${fld("Importance", selectHtml("important", [["no", "Normal"], ["yes", "⚑ IMPORTANT — alarm me"]], t.important ? "yes" : "no"))}
+         ${fld("Importance", selectHtml("important", [["no", "Normal"], ["yes", "⚑ IMPORTANT - alarm me"]], t.important ? "yes" : "no"))}
        </div>
        <p class="fld-note">⚑ Important + a due date/time = an alarm that keeps ringing when the moment arrives, until you answer it in the app.</p>
-       ${fld("Project", selectHtml("projectId", [["", "— none —"]].concat(projects.map(p => [p.id, p.name])), t.projectId || ""))}
+       ${fld("Project", selectHtml("projectId", [["", "- none -"]].concat(projects.map(p => [p.id, p.name])), t.projectId || ""))}
        ${fld("Notes", `<textarea name="notes" rows="2" placeholder="Optional context">${esc(t.notes || "")}</textarea>`)}
        ${modalActions(task ? "Save" : "Add task")}
      </form>`
@@ -2361,7 +2543,8 @@ function settingsModal() {
      <form data-form="settings">
        <div class="fld-row">
          ${fld("Your name", `<input type="text" name="name" maxlength="60" value="${esc(s.name || "")}" placeholder="How Sol greets you">`)}
-         ${fld("Appearance", selectHtml("theme", [["auto", "Auto (by time)"], ["day", "Day"], ["night", "Night"]], ["auto", "day", "night"].includes(s.theme) ? s.theme : "auto"))}
+         ${fld("Appearance", selectHtml("theme", [["auto", "Auto (by time)"], ["light", "Light - Crystal"], ["dark", "Dark - Orbit"]],
+           s.theme === "day" ? "light" : s.theme === "night" ? "dark" : (["auto", "light", "dark"].includes(s.theme) ? s.theme : "auto")))}
          ${fld("Sound FX", selectHtml("sound", [["on", "On"], ["off", "Off"]], s.sound === false ? "off" : "on"))}
        </div>
        ${fld("Sol's brain", selectHtml("provider", [
@@ -2417,7 +2600,7 @@ function handleImportFile(input) {
         state.noteId = null;
         state.docId = null;
         applyTheme();
-        save();
+        save(true); // deliberate replace - force past the revision guard
         render();
         toast("Backup restored");
       },
@@ -2429,7 +2612,7 @@ function handleImportFile(input) {
 
 /* ---------------- render ---------------- */
 
-/* the app's one logo: a half sun on the horizon whose rays ARE the nav —
+/* the app's one logo: a half sun on the horizon whose rays ARE the nav -
    one ray per section, the lit ray sweeps as you move through the app */
 function sunNav() {
   const cx = 100, cy = 100, r1 = 40, r2 = 76;
@@ -2585,7 +2768,7 @@ function touchStreak() {
   if (g.streak > (g.bestStreak || 0)) g.bestStreak = g.streak;
 }
 
-/* count today's finished tasks — drives the daily tracker + ace moment */
+/* count today's finished tasks - drives the daily tracker + ace moment */
 function doneTodayCount() {
   const t = todayStr();
   return state.data.tasks.filter(x => x.status === "done" && x.completedAt && isoOf(new Date(x.completedAt)) === t).length;
@@ -2648,7 +2831,7 @@ function playAceTone() {
 let renderedView = null;
 
 function autoDecorate(root, sameView) {
-  // scramble decode only on a fresh view entrance — not on every little re-render
+  // scramble decode only on a fresh view entrance - not on every little re-render
   if (!sameView) {
     const h1 = root.querySelector(".page-head h1, .wander-copy h1");
     if (h1 && h1.children.length === 0 && !h1.hasAttribute("data-scramble")) h1.setAttribute("data-scramble", "");
@@ -2752,7 +2935,7 @@ function render() {
     case "docs":      html = viewPad("docs"); break;
     default:          html = viewToday();
   }
-  // same-view re-renders (ticking a task, changing a filter) must feel instant —
+  // same-view re-renders (ticking a task, changing a filter) must feel instant -
   // entrance + reveal animations only replay when the view actually changes
   const sameView = renderedView === state.view;
   renderedView = state.view;
@@ -2797,6 +2980,9 @@ function applyPointerLight() {
   if (!e) return;
   const nx = e.clientX / window.innerWidth - 0.5;
   const ny = e.clientY / window.innerHeight - 0.5;
+  // unitless pointer position for CRYSTAL's 3D parallax (hero disc, petals)
+  document.documentElement.style.setProperty("--pxn", nx.toFixed(3));
+  document.documentElement.style.setProperty("--pyn", ny.toFixed(3));
   const glow = document.getElementById("bg-glow");
   if (glow) {
     glow.style.transform = `translate3d(${(nx * 22).toFixed(1)}px, ${(ny * 16).toFixed(1)}px, 0)`;
@@ -2806,6 +2992,9 @@ function applyPointerLight() {
     if (r.width && r.height) {
       hoverCard.style.setProperty("--mx", ((e.clientX - r.left) / r.width * 100).toFixed(1) + "%");
       hoverCard.style.setProperty("--my", ((e.clientY - r.top) / r.height * 100).toFixed(1) + "%");
+      // unitless twins so CSS calc() can turn them into 3D tilt angles
+      hoverCard.style.setProperty("--mxn", ((e.clientX - r.left) / r.width).toFixed(3));
+      hoverCard.style.setProperty("--myn", ((e.clientY - r.top) / r.height).toFixed(3));
     }
   }
 }
@@ -2817,7 +3006,7 @@ if (!reducedMotion) {
     if (!pointerRaf) {
       pointerRaf = true;
       requestAnimationFrame(applyPointerLight);
-      // rAF stalls in hidden/throttled tabs — don't let the flag jam forever
+      // rAF stalls in hidden/throttled tabs - don't let the flag jam forever
       setTimeout(() => { if (pointerRaf) applyPointerLight(); }, 60);
     }
   });
@@ -2890,7 +3079,7 @@ document.addEventListener("click", (e) => {
       const t = d.tasks.find(x => x.id === id);
       if (t) { t.alarmAck = true; save(); }
       stopAlarm();
-      toast("okay — go get it ⚑");
+      toast("okay - go get it ⚑");
       checkAlarms(); // next important thing in the queue, if any
       break;
     }
@@ -3245,7 +3434,7 @@ document.addEventListener("submit", (e) => {
 
     case "settings": {
       d.settings.name = val("name");
-      d.settings.theme = ["auto", "day", "night"].includes(val("theme")) ? val("theme") : "auto";
+      d.settings.theme = ["auto", "light", "dark"].includes(val("theme")) ? val("theme") : "auto";
       d.settings.sound = val("sound") !== "off";
       d.settings.provider = ["ollama", "claude", "offline"].includes(val("provider")) ? val("provider") : "ollama";
       d.settings.ollamaUrl = val("ollamaUrl") || "http://localhost:11434";
@@ -3377,6 +3566,22 @@ document.addEventListener("keydown", (e) => {
     cmdMove(e.key === "ArrowDown" ? 1 : -1);
     return;
   }
+  // wander: ← → flips to another place (never while typing or in a dialog)
+  if (state.view === "wander" && (e.key === "ArrowRight" || e.key === "ArrowLeft") &&
+      !e.ctrlKey && !e.metaKey && !e.altKey) {
+    const ae = document.activeElement;
+    const typing = ae && (ae.tagName === "INPUT" || ae.tagName === "TEXTAREA" || ae.tagName === "SELECT" || ae.isContentEditable);
+    if (!typing && !document.querySelector("#modal-root .overlay")) {
+      e.preventDefault();
+      let next = state.wanderIndex;
+      while (PLACES.length > 1 && next === state.wanderIndex) next = Math.floor(Math.random() * PLACES.length);
+      state.wanderIndex = next;
+      state.factIndex = Math.floor(Math.random() * FACTS.length);
+      sfxClick("chip");
+      render();
+    }
+    return;
+  }
   if (e.key === "Escape" && document.querySelector("#modal-root .overlay")) {
     closeModal();
   }
@@ -3393,8 +3598,66 @@ window.addEventListener("hashchange", () => {
 
 window.addEventListener("beforeunload", () => {
   clearTimeout(padSaveTimer);
-  save();
+  save(); // refused by the revision guard if another tab holds newer data
 });
+
+/* ---------------- multi-tab sync ---------------- */
+
+/* another tab saved - make its payload our new truth instead of drifting
+   stale (and later clobbering it on unload) */
+function absorbStored() {
+  let obj = null;
+  try { obj = JSON.parse(localStorage.getItem(STORAGE_KEY)); }
+  catch (e) { return; }
+  if (!obj || typeof obj !== "object") return;
+
+  // carry this tab's debounce-pending pad keystrokes across the swap;
+  // they're the newest user action, so they win over the absorbed copy
+  let pending = null;
+  if (padDirty && padDirtyKind) {
+    const cfg = PADS[padDirtyKind];
+    const cur = state.data[cfg.key].find(x => x.id === state[cfg.sel]);
+    if (cur) pending = { key: cfg.key, id: cur.id, title: cur.title, body: cur.body, updatedAt: cur.updatedAt };
+  }
+
+  state.data = normalize(obj);
+
+  if (pending) {
+    const item = state.data[pending.key].find(x => x.id === pending.id);
+    if (item) {
+      item.title = pending.title;
+      item.body = pending.body;
+      item.updatedAt = pending.updatedAt;
+      clearTimeout(padSaveTimer);
+      padSaveTimer = setTimeout(save, 350);
+    } else {
+      padDirty = false; // the other tab deleted it - let the edit go
+    }
+  }
+
+  if (state.noteId && !state.data.notes.some(n => n.id === state.noteId)) state.noteId = null;
+  if (state.docId && !state.data.docs.some(n => n.id === state.docId)) state.docId = null;
+  applyTheme();
+
+  // don't yank the editor out from under mid-flight typing; the next
+  // action re-renders anyway and the absorbed state is already in place
+  const ae = document.activeElement;
+  const typing = ae && (ae.id === "pad-title" || ae.id === "pad-body");
+  if (!typing) render();
+}
+
+window.addEventListener("storage", (e) => {
+  if (e.key !== STORAGE_KEY) return;
+  if (revOfRaw(e.newValue) > (state.data.rev || 0)) absorbStored();
+});
+
+/* storage events can be missed while a tab is frozen or in the back/forward
+   cache - re-check whenever it comes back to life */
+function syncFromStorage() {
+  if (storedRev() > (state.data.rev || 0)) absorbStored();
+}
+document.addEventListener("visibilitychange", () => { if (!document.hidden) syncFromStorage(); });
+window.addEventListener("pageshow", (e) => { if (e.persisted) syncFromStorage(); });
 
 /* ---------------- init ---------------- */
 
@@ -3404,7 +3667,7 @@ window.addEventListener("beforeunload", () => {
   if (VIEWS.some(v => v.id === h)) state.view = h;
   try {
     if (!localStorage.getItem(STORAGE_KEY)) save();
-  } catch (e) { /* storage unavailable — session-only mode */ }
+  } catch (e) { /* storage unavailable - session-only mode */ }
 
   // record today's login for the 30-day heatmap
   const g = state.data.game;
@@ -3424,7 +3687,7 @@ window.addEventListener("beforeunload", () => {
   checkAlarms();
   setInterval(checkAlarms, 15000);
 
-  // browsers block audio until the first interaction — unlock the shared context then
+  // browsers block audio until the first interaction - unlock the shared context then
   document.addEventListener("pointerdown", () => {
     try { if (sfxCtx && sfxCtx.state === "suspended") sfxCtx.resume(); } catch (e) { /* fine */ }
   });
