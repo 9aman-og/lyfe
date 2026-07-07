@@ -89,6 +89,23 @@ device only.
 
 ---
 
+## Lyfe runs in two places
+
+Lyfe is deployed twice:
+
+- **Canonical:** the `lyfe` repo, live at `https://9aman-og.github.io/lyfe/`.
+- **Mirror:** a copy under `web/lyfe/` in the `sonnesystems` repo, live at
+  `https://sonnesystems.com/lyfe/`.
+
+Edit the canonical copy, then resync the mirror before pushing the site:
+
+```
+robocopy G:\CLAUDE\lyfe G:\CLAUDE\web\lyfe /MIR /XD .git
+```
+
+That is why step 5 lists both origins as redirect URLs. If you ever stop using
+the sonnesystems.com/lyfe mirror, delete `web/lyfe/` and drop that redirect URL.
+
 ## For whoever maintains this later
 
 - **Where the code is.** `cloud.js` is the whole client integration (auth +
