@@ -1,8 +1,8 @@
-/* Lyfe service worker — offline app shell for the installed Android/PWA app.
+/* Lyfe service worker - offline app shell for the installed Android/PWA app.
    HTML is network-first (always fresh when online); versioned assets cache-first. */
 "use strict";
 
-const CACHE = "lyfe-orbit-15";
+const CACHE = "lyfe-crystal-21";
 const SHELL = [
   "./",
   "./index.html",

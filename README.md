@@ -1,14 +1,14 @@
-# Lyfe — your life, lightly kept
+# Lyfe - your life, lightly kept
 
 One calm place for everything: tasks, projects, goals, education, work log,
-notes, docs — and **Sol**, a companion you can just talk to.
+notes, docs - and **Sol**, a companion you can just talk to.
 
 No frameworks, no build step, no dependencies. Three files that will still
 open in twenty years.
 
 ## Opening it
 
-Double-click `index.html` — it runs straight from disk in any modern browser.
+Double-click `index.html` - it runs straight from disk in any modern browser.
 
 Or serve it locally:
 
@@ -20,7 +20,7 @@ python -m http.server 4173 --directory .
 ## Install as an Android app (PWA)
 
 Lyfe is a Progressive Web App, so it installs to your phone's home screen and
-runs full-screen and offline — no Play Store, no build tools.
+runs full-screen and offline - no Play Store, no build tools.
 
 1. Put the folder on any HTTPS host (GitHub Pages, Netlify, Vercel, or your own
    server). Installing requires `https://` (or `localhost`); it will not install
@@ -34,7 +34,7 @@ runs full-screen and offline — no Play Store, no build tools.
 
 Want a real Play Store `.apk`/`.aab`? Wrap this PWA with
 [Bubblewrap](https://github.com/GoogleChromeLabs/bubblewrap) (a Trusted Web
-Activity) once it's hosted — no code changes needed.
+Activity) once it's hosted - no code changes needed.
 
 Files added for this: `manifest.webmanifest`, `sw.js`, `icon-192/512*.png`.
 
@@ -42,8 +42,8 @@ Files added for this: `manifest.webmanifest`, `sw.js`, `icon-192/512*.png`.
 
 | Section   | What it holds                                            |
 |-----------|----------------------------------------------------------|
-| Today     | What needs you now — due tasks, quick capture, a glance at everything in motion |
-| Sol       | Your companion. Talk like you'd text a friend — Sol files things for you |
+| Today     | What needs you now - due tasks, quick capture, a glance at everything in motion |
+| Sol       | Your companion. Talk like you'd text a friend - Sol files things for you |
 | Tasks     | Grouped Overdue / Today / Upcoming / Someday             |
 | Projects  | Bigger undertakings with progress                        |
 | Goals     | Long-horizon aims with tickable milestones               |
@@ -62,7 +62,7 @@ Sol understands plain text and logs it for you:
 - `done email prof` → ticks the task off
 - `goal: publish SNN paper` / `doc: research plan` / `learning: Spanish`
 - `how am i doing` / `what's due` → a status rundown
-- or just say `hi` — Sol says hi back, greets you whenever you open the app
+- or just say `hi` - Sol says hi back, greets you whenever you open the app
   after a break, and checks in on its own while the app is open
 - vent to it ("i'm so tired") and it responds like a friend, not a form
 
@@ -83,26 +83,42 @@ so Sol never goes silent.
 
 ## Your data
 
-Everything is stored in the browser's `localStorage` under the key `lyfe.v1` —
+Everything is stored in the browser's `localStorage` under the key `lyfe.v1` -
 nothing leaves your machine (except Sol's optional API calls, above).
 
 **The data belongs to one browser profile.** Use **Export** in the sidebar to
 download a JSON backup regularly, and **Import** to restore or move machines.
-Clearing site data erases the ledger — keep backups.
+Clearing site data erases the ledger - keep backups.
 
 ## Appearance
 
-Auto by default — day mode in daylight hours, night mode after dark; pick
-Day or Night in Settings to pin it. Cards lift softly under the cursor and a
-thin progress rail tracks your scroll; set your OS to reduced motion to turn
-all animation off.
+Lyfe has two complete identities, not two tints of one design:
+
+- **Dark - Orbit.** Black, acid lime, sharp cyber-editorial. A left-rail
+  control room with a synthwave horizon.
+- **Light - Crystal.** A different building entirely: one frosted glass bar
+  across the top, a front page built around a liquid-chrome orb with true-3D
+  orbital rings and a satellite bead that floats and leans toward your cursor,
+  a bento deck of live tiles, chrome-metal type (Unbounded), holo foils that
+  slowly drift, aqua-glass buttons with a passing ad-glare, cards that tilt in
+  3D under the pointer and unfold from blur as they enter - Y2K futurism by
+  way of a 2000s Sony commercial. Even the icons and micro-copy change
+  (`LYFE ::CRYSTAL`, `WELCOME.. ::2K`).
+
+In Wander, photos tune in over a clean loading screen (no placeholder art)
+and you can flip places with the ← → arrow keys.
+
+Auto by default - Crystal in daylight hours, Orbit after dark; pick Light or
+Dark in Settings to pin one. Cards lift softly under the cursor with an
+iridescent light that follows it, and a thin holo rail tracks your scroll;
+set your OS to reduced motion to turn all animation off.
 
 Sol appears as a pixel puppy (cream coat, golden ears, a sprout on the head,
-charcoal bandana) with a gentle idle bob, blink and sprout sway — and closed
+charcoal bandana) with a gentle idle bob, blink and sprout sway - and closed
 sleepy eyes if you're up past 11pm.
 
 ## Files
 
-- `index.html` — shell + sun logo
-- `styles.css` — the look (day/night themes, hover lift, chat)
-- `app.js` — all logic; plain JavaScript, no dependencies
+- `index.html` - shell + sun logo
+- `styles.css` - the look (Orbit dark + Crystal light identities, hover lift, chat)
+- `app.js` - all logic; plain JavaScript, no dependencies

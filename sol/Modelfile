@@ -1,4 +1,4 @@
-# lyfe-sol — Sol, the Lyfe companion, tuned on top of Qwen3
+# lyfe-sol - Sol, the Lyfe companion, tuned on top of Qwen3
 #
 # Build it once:   ollama create lyfe-sol -f sol/Modelfile
 # Then in Lyfe:    Settings → Ollama model → lyfe-sol
